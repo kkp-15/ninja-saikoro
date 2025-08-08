@@ -9,7 +9,7 @@
 <meta name="description" content="クイック / 決める / RPG の3モード。色付きで見やすい特大サイコロ、スワイプで再ロール。スマホに最適化されたシンプルUI。" />
 <meta name="keywords" content="サイコロ, ダイス, 乱数, ボードゲーム, TRPG, 決める, 抽選, 無料, スマホ, Webアプリ" />
 
-<!-- ✅ OGP / Twitter（絶対URLにすること！） -->
+<!-- ✅ OGP / Twitter -->
 <meta property="og:title" content="サイコロの術 🎲" />
 <meta property="og:description" content="クイック / 決める / RPG の3モード。色付きで見やすい特大サイコロ、スワイプで再ロール。スマホに最適化されたシンプルUI。" />
 <meta property="og:type" content="website" />
@@ -20,7 +20,7 @@
 <meta name="twitter:card" content="summary_large_image" />
 <meta name="twitter:site" content="@kkp_webninja" />
 
-<!-- ✅ Google Analytics（いつもの） -->
+<!-- ✅ Google Analytics -->
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-2LM85GJN0L"></script>
 <script>
   window.dataLayer = window.dataLayer || [];
@@ -30,75 +30,75 @@
 </script>
 
 <style>
-  :root{
+  :root {
     --bg:#f7f7fb; --fg:#111827; --muted:#6b7280;
     --die:#ffffff; --border:#e5e7eb; --radius:18px;
-    --pip:36%; --gap:12px; --die-min:110px;
+    --pip:34%; --gap:14px; --die-min:130px;
     --btn1:#6366f1; --btn2:#06b6d4;
   }
-  @media (prefers-color-scheme: dark){
-    :root{
+  @media (prefers-color-scheme: dark) {
+    :root {
       --bg:#0b0d12; --fg:#e5e7eb; --muted:#9aa2b2;
       --die:#15192d; --border:#2a2f45;
       --btn1:#7c7bff; --btn2:#3bd6e9;
     }
   }
-  *{box-sizing:border-box}
-  body{
-    margin:0; font-family: system-ui,-apple-system,"Segoe UI",Roboto,"Hiragino Kaku Gothic ProN",sans-serif;
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: system-ui,-apple-system,"Segoe UI",Roboto,"Hiragino Kaku Gothic ProN",sans-serif;
     background:
       radial-gradient(1000px 700px at 80% -10%, rgba(99,102,241,.10), transparent 50%),
       radial-gradient(900px 600px at -10% 40%, rgba(6,182,212,.10), transparent 55%),
       var(--bg);
-    color:var(--fg); padding:16px; line-height:1.45;
+    color: var(--fg);
+    padding: 16px;
+    line-height: 1.45;
   }
-  h1{margin:0 0 8px; font-size: clamp(18px,4.5dvw,28px); font-weight:800;}
-  .sub{color:var(--muted); margin-bottom:14px; font-size:.95rem}
+  h1 { margin: 0 0 8px; font-size: clamp(18px,4.5dvw,28px); font-weight: 800; }
+  .sub { color: var(--muted); margin-bottom: 14px; font-size: .95rem }
 
-  /* チップ（モード/個数/種類） */
-  .chips{display:flex; flex-wrap:wrap; gap:8px; margin:10px 0 14px}
-  .chip{
-    border:1px solid var(--border); border-radius:999px; padding:10px 14px;
-    background:transparent; color:var(--fg); font-weight:700; cursor:pointer;
+  .chips { display: flex; flex-wrap: wrap; gap: 8px; margin: 10px 0 14px; }
+  .chip {
+    border: 1px solid var(--border); border-radius: 999px; padding: 10px 14px;
+    background: transparent; color: var(--fg); font-weight: 700; cursor: pointer;
   }
-  .chip.active{
-    color:#fff; border-color: transparent;
+  .chip.active {
+    color: #fff; border-color: transparent;
     background: linear-gradient(135deg, var(--btn1), var(--btn2));
   }
 
-  /* メインボタン */
-  .primary{
-    width:100%; border:none; border-radius:14px; padding:16px 18px; font-weight:800;
-    font-size: clamp(16px,3.8dvw,20px); color:#fff;
+  .primary {
+    width: 100%; border: none; border-radius: 14px; padding: 16px 18px;
+    font-weight: 800; font-size: clamp(16px,3.8dvw,20px); color: #fff;
     background: linear-gradient(135deg, var(--btn1), var(--btn2));
-    box-shadow: 0 10px 24px rgba(0,0,0,.12);
-    cursor:pointer;
+    box-shadow: 0 10px 24px rgba(0,0,0,.12); cursor: pointer;
   }
 
-  /* オプション */
-  .opts{display:flex; align-items:center; gap:12px; margin-bottom:6px; justify-content:space-between}
-  .left-opts{display:flex; align-items:center; gap:12px}
-  .tog{display:inline-flex; align-items:center; gap:8px; border:1px solid var(--border); border-radius:10px; padding:8px 12px}
-  .tog input{accent-color:#3b82f6}
-  #helpBtn{
-    border:1px solid var(--border); border-radius:999px; padding:6px 10px;
-    background:transparent; color:var(--muted); cursor:pointer;
+  .opts { display: flex; align-items: center; gap: 12px; margin-bottom: 6px; justify-content: space-between; }
+  .left-opts { display: flex; align-items: center; gap: 12px; }
+  .tog { display: inline-flex; align-items: center; gap: 8px; border: 1px solid var(--border); border-radius: 10px; padding: 8px 12px; }
+  .tog input { accent-color: #3b82f6; }
+  #helpBtn {
+    border: 1px solid var(--border); border-radius: 999px; padding: 6px 10px;
+    background: transparent; color: var(--muted); cursor: pointer;
   }
 
-  /* サイコロ盤面（最大化調整） */
-  .dice-area{
-    margin-top:14px;
-    display:grid; grid-template-columns: repeat(auto-fit, minmax(var(--die-min), 1fr));
+  .dice-area {
+    margin-top: 14px;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(var(--die-min), 1fr));
     gap: var(--gap);
   }
-  .dice-area.one{ --die-min: min(78dvw, 300px); --pip:42%; --gap:18px;}
-  .dice-area.few{ --die-min: 160px; --pip:38%; --gap:16px;}
-  .dice-area.many{ --die-min: 130px; --pip:34%; --gap:14px;}
+  .dice-area.one, .dice-area.few, .dice-area.many {
+    --die-min: 130px;
+    --pip: 34%;
+    --gap: 14px;
+  }
 
-  .die{
-    aspect-ratio:1/1; border-radius: var(--radius); background: var(--die);
-    border:1px solid var(--border); display:grid; place-items:center; position:relative;
-    /* 出目色：CSS変数 --h を受け取る（淡色リング） */
+  .die {
+    aspect-ratio: 1/1; border-radius: var(--radius); background: var(--die);
+    border: 1px solid var(--border); display: grid; place-items: center; position: relative;
     --h: 210;
     background:
       radial-gradient(60% 55% at 50% 35%, hsl(var(--h) 100% 94%) 0%, transparent 65%),
@@ -107,8 +107,8 @@
       0 6px 18px hsl(var(--h) 80% 40% / .10),
       inset 0 0 0 1px hsl(var(--h) 60% 75% / .40);
   }
-  @media (prefers-color-scheme: dark){
-    .die{
+  @media (prefers-color-scheme: dark) {
+    .die {
       background:
         radial-gradient(60% 55% at 50% 35%, hsl(var(--h) 80% 20% / .55) 0%, transparent 65%),
         var(--die);
@@ -117,72 +117,74 @@
         inset 0 0 0 1px hsl(var(--h) 70% 55% / .30);
     }
   }
-  .face{
-    position:absolute; inset:8%; border-radius:14px;
-    display:grid; grid-template-columns: repeat(3,1fr); grid-template-rows: repeat(3,1fr);
-    place-items:center; gap:3%;
-  }
-  .pip{
-    width: var(--pip); aspect-ratio:1/1; border-radius:50%;
-    background:#111827; box-shadow: inset 0 -1px 1px rgba(255,255,255,.35);
-  }
-  @media (prefers-color-scheme: dark){
-    .pip{ background:#ffffff; box-shadow:none; }
+
+  .face {
+    position: absolute; inset: 8%; border-radius: 14px;
+    display: grid; grid-template-columns: repeat(3,1fr); grid-template-rows: repeat(3,1fr);
+    place-items: center; gap: 3%;
   }
 
-  .result{
-    margin-top:12px; font-weight:800; font-size: clamp(16px,3.5dvw,22px);
-    display:inline-block; padding:6px 10px; border-radius:10px;
-    background: linear-gradient(135deg, var(--btn1), var(--btn2));
-    color:#fff;
+  .pip {
+    width: var(--pip); aspect-ratio: 1/1; border-radius: 50%;
+    background: #111827; box-shadow: inset 0 -1px 1px rgba(255,255,255,.35);
   }
-  .hint{ color:var(--muted); font-size:.92rem; margin-top:6px}
-
-  /* 決める */
-  .decide-wrap{display:flex; gap:10px; align-items:center; margin:6px 0 12px}
-  .num-input{
-    flex:1; border:1px solid var(--border); border-radius:12px; padding:12px 14px;
-    font-weight:700; font-size:1rem; background:var(--die); color:var(--fg);
+  @media (prefers-color-scheme: dark) {
+    .pip { background: #ffffff; box-shadow: none; }
   }
-  .num-input:invalid{ outline:2px solid #ef4444 }
 
-  /* RPG */
-  .dice-types{display:flex; flex-wrap:wrap; gap:8px; margin:6px 0 12px}
+  .result {
+    margin-top: 12px; font-weight: 800; font-size: clamp(16px,3.5dvw,22px);
+    display: inline-block; padding: 6px 10px; border-radius: 10px;
+    background: linear-gradient(135deg, var(--btn1), var(--btn2)); color: #fff;
+  }
+  .hint { color: var(--muted); font-size: .92rem; margin-top: 6px; }
 
-  /* ヘルプシート / トースト / フッター */
-  #helpBackdrop{display:none; position:fixed; inset:0; background:rgba(0,0,0,.25)}
-  #helpSheet{
-    display:none; position:fixed; left:0; right:0; bottom:0;
-    background:var(--die); color:var(--fg);
-    border-top-left-radius:16px; border-top-right-radius:16px;
+  .decide-wrap { display: flex; gap: 10px; align-items: center; margin: 6px 0 12px; }
+  .num-input {
+    flex: 1; border: 1px solid var(--border); border-radius: 12px; padding: 12px 14px;
+    font-weight: 700; font-size: 1rem; background: var(--die); color: var(--fg);
+  }
+  .num-input:invalid { outline: 2px solid #ef4444; }
+
+  .dice-types { display: flex; flex-wrap: wrap; gap: 8px; margin: 6px 0 12px; }
+
+  #helpBackdrop { display: none; position: fixed; inset: 0; background: rgba(0,0,0,.25); }
+  #helpSheet {
+    display: none; position: fixed; left: 0; right: 0; bottom: 0;
+    background: var(--die); color: var(--fg);
+    border-top-left-radius: 16px; border-top-right-radius: 16px;
     box-shadow: 0 -12px 30px rgba(0,0,0,.18);
-    padding:16px; max-height:60vh; overflow:auto;
+    padding: 16px; max-height: 60vh; overflow: auto;
   }
-  #helpBackdrop.show { display:block; animation: fade .15s ease-out; }
-  #helpSheet.show    { display:block; animation: rise .2s ease-out; }
+  #helpBackdrop.show { display: block; animation: fade .15s ease-out; }
+  #helpSheet.show { display: block; animation: rise .2s ease-out; }
   @keyframes fade { from{opacity:0} to{opacity:1} }
   @keyframes rise { from{transform:translateY(16px); opacity:.8} to{transform:translateY(0); opacity:1} }
 
-  #toast{
-    display:none; position:fixed; left:50%; transform:translateX(-50%);
-    bottom:84px; background:#111827; color:#fff; padding:10px 14px; border-radius:12px; font-size:.9rem;
+  #toast {
+    display: none; position: fixed; left: 50%; transform: translateX(-50%);
+    bottom: 84px; background: #111827; color: #fff;
+    padding: 10px 14px; border-radius: 12px; font-size: .9rem;
   }
-  #footer{ margin-top:22px; color:var(--muted); font-size:.9rem; text-align:center}
-  #footer a{ color:inherit; text-decoration:underline}
+
+  #footer {
+    margin-top: 22px; color: var(--muted); font-size: .9rem; text-align: center;
+  }
+  #footer a {
+    color: inherit; text-decoration: underline;
+  }
 </style>
 </head>
 <body>
   <h1>サイコロの術 🎲</h1>
   <div class="sub">クイック / 決める / RPG。必要なときに、1タップ。</div>
 
-  <!-- モード切替 -->
   <div class="chips" id="modeChips">
     <button class="chip active" data-mode="quick">クイック</button>
     <button class="chip" data-mode="decide">決める</button>
     <button class="chip" data-mode="rpg">RPG</button>
   </div>
 
-  <!-- オプション -->
   <div class="opts">
     <div class="left-opts">
       <label class="tog"><input type="checkbox" id="vib" checked> バイブ</label>
@@ -191,7 +193,7 @@
     <button id="helpBtn" aria-label="使い方">？</button>
   </div>
 
-  <!-- クイック -->
+  <!-- クイックモード -->
   <div id="quick" class="mode">
     <div class="chips" id="countChips">
       <button class="chip" data-n="1">1個</button>
@@ -207,7 +209,7 @@
     <div id="detailQuick" class="hint" style="display:none"></div>
   </div>
 
-  <!-- 決める -->
+  <!-- 決めるモード -->
   <div id="decide" class="mode" style="display:none">
     <div class="decide-wrap">
       <label for="maxN" class="sub" style="min-width:4.5em">最大N</label>
@@ -217,7 +219,7 @@
     <div id="sumDecide" class="result" style="display:none"></div>
   </div>
 
-  <!-- RPG -->
+  <!-- RPGモード -->
   <div id="rpg" class="mode" style="display:none">
     <div class="dice-types" id="typeChips">
       <button class="chip active" data-sides="6">D6</button>
@@ -246,10 +248,8 @@
     </ul>
   </div>
 
-  <!-- 初回トースト -->
   <div id="toast">ヒント：下から上へスワイプで再ロール</div>
 
-  <!-- SEO説明（折りたたみ） -->
   <details style="margin-top:24px; font-size:.95rem; line-height:1.6">
     <summary style="cursor:pointer; font-weight:bold; color:var(--muted)">このアプリについて</summary>
     <p>サイコロの術 🎲 は、スマホやPCで手軽にサイコロを振れる無料Webアプリです。クイックモードでは1〜6個のサイコロを同時に振り、合計と内訳を表示します。決めるモードでは1〜任意の数字までの乱数を生成し、順番決めやお題決めに便利です。RPGモードではD6・D8・D10・D12・D20を1つ振ることができます。ボードゲーム、TRPG、イベント、授業や確率実験など幅広い用途に対応します。</p>
@@ -260,190 +260,167 @@
     🏯 <a href="https://kkpwebninja.com" target="_blank">本丸</a>
   </div>
 
-<script>
-const $ = s => document.querySelector(s);
-const $$ = s => [...document.querySelectorAll(s)];
+  <script>
+  const $ = s => document.querySelector(s);
+  const $$ = s => [...document.querySelectorAll(s)];
+  let mode = 'quick';
+  let diceCount = 2;
+  let rpgSides = 6;
+  const HUES = [355, 25, 50, 200, 150, 280];
 
-/* ====== 状態 ====== */
-let mode = 'quick';
-let diceCount = 2;  // クイック用
-let rpgSides = 6;   // RPG用
+  function pipLayout(n) {
+    const one = [0,0,0, 0,1,0, 0,0,0];
+    const two = [1,0,0, 0,0,0, 0,0,1];
+    const three = [1,0,0, 0,1,0, 0,0,1];
+    const four = [1,0,1, 0,0,0, 1,0,1];
+    const five = [1,0,1, 0,1,0, 1,0,1];
+    const six = [1,0,1, 1,0,1, 1,0,1];
+    return [one,two,three,four,five,six][n-1];
+  }
 
-/* ====== 出目→色相（HSLのh値） ====== */
-const HUES = [355, 25, 50, 200, 150, 280]; // 1:赤,2:橙,3:黄緑,4:水色,5:ミント,6:紫
-
-/* ====== ピップ配置（3x3） ====== */
-function pipLayout(n){
-  const one =   [0,0,0, 0,1,0, 0,0,0];
-  const two =   [1,0,0, 0,0,0, 0,0,1];
-  const three = [1,0,0, 0,1,0, 0,0,1];
-  const four =  [1,0,1, 0,0,0, 1,0,1];
-  const five =  [1,0,1, 0,1,0, 1,0,1];
-  const six =   [1,0,1, 1,0,1, 1,0,1];
-  return [one,two,three,four,five,six][n-1];
-}
-
-/* ====== サイコロDOM生成 ====== */
-function createDie(face=1){
-  const d = document.createElement('div');
-  d.className = 'die';
-  d.style.setProperty('--h', HUES[face-1] ?? 210);
-
-  const f = document.createElement('div'); 
-  f.className = 'face';
-  const layout = pipLayout(face);
-  for(let i=0;i<9;i++){
-    if(layout[i]){
-      const p = document.createElement('div'); 
-      p.className = 'pip'; 
-      f.appendChild(p);
-    }else{
-      f.appendChild(document.createElement('div'));
+  function createDie(face=1){
+    const d = document.createElement('div');
+    d.className = 'die';
+    d.style.setProperty('--h', HUES[face-1] ?? 210);
+    const f = document.createElement('div');
+    f.className = 'face';
+    const layout = pipLayout(face);
+    for(let i=0;i<9;i++){
+      if(layout[i]){
+        const p = document.createElement('div');
+        p.className = 'pip';
+        f.appendChild(p);
+      } else {
+        f.appendChild(document.createElement('div'));
+      }
     }
+    d.appendChild(f);
+    return d;
   }
-  d.appendChild(f);
-  return d;
-}
 
-/* ====== クイック：個数でサイズクラス付与 ====== */
-const diceArea = $('#diceArea');
-function applyGridClass(n){
-  diceArea.classList.remove('one','few','many');
-  if(n===1) diceArea.classList.add('one');
-  else if(n<=3) diceArea.classList.add('few');
-  else diceArea.classList.add('many');
-}
+  const diceArea = $('#diceArea');
+  function applyGridClass(n){
+    diceArea.classList.remove('one','few','many');
+    if(n===1) diceArea.classList.add('one');
+    else if(n<=3) diceArea.classList.add('few');
+    else diceArea.classList.add('many');
+  }
 
-/* ====== バイブ ====== */
-function buzz(){
-  if($('#vib').checked && navigator.vibrate) navigator.vibrate(18);
-}
+  function buzz(){
+    if($('#vib').checked && navigator.vibrate) navigator.vibrate(18);
+  }
 
-/* ====== ロール処理 ====== */
-function rollQuick(){
+  function rollQuick(){
+    applyGridClass(diceCount);
+    diceArea.innerHTML = '';
+    const faces = [];
+    let sum = 0;
+    for(let i=0;i<diceCount;i++){
+      const r = Math.floor(Math.random()*6) + 1;
+      faces.push(r);
+      sum += r;
+      diceArea.appendChild(createDie(r));
+    }
+    $('#sumQuick').textContent = `合計 ${sum}`;
+    $('#sumQuick').style.display = 'inline-block';
+    $('#detailQuick').textContent = `内訳: ${faces.join(' / ')}`;
+    $('#detailQuick').style.display = 'block';
+    buzz();
+  }
+
+  function rollDecide(){
+    const max = parseInt($('#maxN').value, 10);
+    if(!Number.isFinite(max) || max < 2 || max > 999999){
+      $('#maxN').focus();
+      $('#maxN').reportValidity?.();
+      return;
+    }
+    const val = Math.floor(Math.random()*max) + 1;
+    $('#sumDecide').textContent = String(val);
+    $('#sumDecide').style.display = 'inline-block';
+    buzz();
+  }
+
+  function rollRPG(){
+    const val = Math.floor(Math.random()*rpgSides) + 1;
+    $('#sumRPG').textContent = `D${rpgSides} → ${val}`;
+    $('#sumRPG').style.display = 'inline-block';
+    buzz();
+  }
+
+  function switchMode(next){
+    if(mode === next) return;
+    mode = next;
+    $$('.chip[data-mode]').forEach(c => c.classList.toggle('active', c.dataset.mode===next));
+    $('#quick').style.display  = (next==='quick')  ? 'block' : 'none';
+    $('#decide').style.display = (next==='decide') ? 'block' : 'none';
+    $('#rpg').style.display    = (next==='rpg')    ? 'block' : 'none';
+    if(next==='quick'){ $('#sumQuick').style.display='none'; $('#detailQuick').style.display='none'; diceArea.innerHTML=''; }
+    if(next==='decide'){ $('#sumDecide').style.display='none'; }
+    if(next==='rpg'){ $('#sumRPG').style.display='none'; }
+  }
+
+  $('#modeChips').addEventListener('click', e=>{
+    const b = e.target.closest('.chip'); if(!b) return;
+    switchMode(b.dataset.mode);
+  });
+  $('#countChips').addEventListener('click', e=>{
+    const b = e.target.closest('.chip'); if(!b) return;
+    $$('#countChips .chip').forEach(c=>c.classList.remove('active'));
+    b.classList.add('active');
+    diceCount = parseInt(b.dataset.n,10);
+    applyGridClass(diceCount);
+  });
+  $('#typeChips').addEventListener('click', e=>{
+    const b = e.target.closest('.chip'); if(!b) return;
+    $$('#typeChips .chip').forEach(c=>c.classList.remove('active'));
+    b.classList.add('active');
+    rpgSides = parseInt(b.dataset.sides,10);
+  });
+  $('#rollQuick').addEventListener('click', rollQuick);
+  $('#rollDecide').addEventListener('click', rollDecide);
+  $('#rollRPG').addEventListener('click', rollRPG);
+
+  let tStartY = null;
+  window.addEventListener('touchstart', e=>{
+    tStartY = e.changedTouches?.[0]?.clientY ?? null;
+  },{passive:true});
+  window.addEventListener('touchend', e=>{
+    const endY = e.changedTouches?.[0]?.clientY ?? null;
+    if(tStartY==null || endY==null) return;
+    const dy = endY - tStartY;
+    if(dy < -40){
+      if(mode==='quick') rollQuick();
+      else if(mode==='decide') rollDecide();
+      else if(mode==='rpg') rollRPG();
+    }
+    tStartY = null;
+  },{passive:true});
+
+  const helpBtn = $('#helpBtn');
+  const helpClose = $('#helpClose');
+  const helpSheet = $('#helpSheet');
+  const helpBackdrop = $('#helpBackdrop');
+
+  function openHelp(){ helpBackdrop.classList.add('show'); helpSheet.classList.add('show'); }
+  function closeHelp(){ helpBackdrop.classList.remove('show'); helpSheet.classList.remove('show'); }
+
+  helpBtn.addEventListener('click', openHelp);
+  helpClose.addEventListener('click', closeHelp);
+  helpBackdrop.addEventListener('click', closeHelp);
+
+  (function(){
+    const KEY='dice.help.toast.v1';
+    if(!localStorage.getItem(KEY)){
+      const toast = document.getElementById('toast');
+      toast.style.display='block';
+      setTimeout(()=> toast.style.display='none', 3000);
+      localStorage.setItem(KEY,'1');
+    }
+  })();
+
+  switchMode('quick');
   applyGridClass(diceCount);
-  diceArea.innerHTML = '';
-  const faces = [];
-  let sum = 0;
-  for(let i=0;i<diceCount;i++){
-    const r = (Math.random()*6 | 0) + 1;
-    faces.push(r); sum += r;
-    diceArea.appendChild(createDie(r));
-  }
-  $('#sumQuick').textContent = `合計 ${sum}`;
-  $('#sumQuick').style.display = 'inline-block';
-  $('#detailQuick').textContent = `内訳: ${faces.join(' / ')}`;
-  $('#detailQuick').style.display = 'block';
-  buzz();
-}
-
-function rollDecide(){
-  const max = parseInt($('#maxN').value,10);
-  if(!Number.isFinite(max) || max < 2 || max > 999999){
-    $('#maxN').focus();
-    $('#maxN').reportValidity?.();
-    return;
-  }
-  const val = (Math.random()*max | 0) + 1;
-  $('#sumDecide').textContent = String(val);
-  $('#sumDecide').style.display = 'inline-block';
-  buzz();
-}
-
-function rollRPG(){
-  const val = (Math.random()*rpgSides | 0) + 1;
-  $('#sumRPG').textContent = `D${rpgSides} → ${val}`;
-  $('#sumRPG').style.display = 'inline-block';
-  buzz();
-}
-
-/* ====== モード切替 ====== */
-function switchMode(next){
-  if(mode === next) return;
-  mode = next;
-  $$('.chip[data-mode]').forEach(c => c.classList.toggle('active', c.dataset.mode===next));
-  $('#quick').style.display  = (next==='quick')  ? 'block' : 'none';
-  $('#decide').style.display = (next==='decide') ? 'block' : 'none';
-  $('#rpg').style.display    = (next==='rpg')    ? 'block' : 'none';
-  // 軽いリセット
-  if(next==='quick'){ $('#sumQuick').style.display='none'; $('#detailQuick').style.display='none'; diceArea.innerHTML=''; }
-  if(next==='decide'){ $('#sumDecide').style.display='none'; }
-  if(next==='rpg'){ $('#sumRPG').style.display='none'; }
-}
-
-/* ====== イベント登録 ====== */
-// モード
-$('#modeChips').addEventListener('click', e=>{
-  const b = e.target.closest('.chip'); if(!b) return;
-  switchMode(b.dataset.mode);
-});
-
-// クイック：個数
-$('#countChips').addEventListener('click', e=>{
-  const b = e.target.closest('.chip'); if(!b) return;
-  $$('#countChips .chip').forEach(c=>c.classList.remove('active'));
-  b.classList.add('active');
-  diceCount = parseInt(b.dataset.n,10);
-  applyGridClass(diceCount);
-});
-
-// RPG：面数
-$('#typeChips').addEventListener('click', e=>{
-  const b = e.target.closest('.chip'); if(!b) return;
-  $$('#typeChips .chip').forEach(c=>c.classList.remove('active'));
-  b.classList.add('active');
-  rpgSides = parseInt(b.dataset.sides,10);
-});
-
-// 各モードの「振る！」
-$('#rollQuick').addEventListener('click', rollQuick);
-$('#rollDecide').addEventListener('click', rollDecide);
-$('#rollRPG').addEventListener('click', rollRPG);
-
-/* ====== スワイプで再ロール（下→上） ====== */
-let tStartY = null;
-window.addEventListener('touchstart', e=>{
-  tStartY = e.changedTouches?.[0]?.clientY ?? null;
-},{passive:true});
-window.addEventListener('touchend', e=>{
-  const endY = e.changedTouches?.[0]?.clientY ?? null;
-  if(tStartY==null || endY==null) return;
-  const dy = endY - tStartY; // 上にスワイプで負
-  if(dy < -40){
-    if(mode==='quick') rollQuick();
-    else if(mode==='decide') rollDecide();
-    else if(mode==='rpg') rollRPG();
-  }
-  tStartY = null;
-},{passive:true});
-
-/* ====== ヘルプシート ====== */
-const helpBtn = $('#helpBtn');
-const helpClose = $('#helpClose');
-const helpSheet = $('#helpSheet');
-const helpBackdrop = $('#helpBackdrop');
-
-function openHelp(){ helpBackdrop.classList.add('show'); helpSheet.classList.add('show'); }
-function closeHelp(){ helpBackdrop.classList.remove('show'); helpSheet.classList.remove('show'); }
-
-helpBtn.addEventListener('click', openHelp);
-helpClose.addEventListener('click', closeHelp);
-helpBackdrop.addEventListener('click', closeHelp);
-
-/* ====== 初回限定トースト ====== */
-(function(){
-  const KEY='dice.help.toast.v1';
-  if(!localStorage.getItem(KEY)){
-    const toast = document.getElementById('toast');
-    toast.style.display='block';
-    setTimeout(()=> toast.style.display='none', 3000);
-    localStorage.setItem(KEY,'1');
-  }
-})();
-
-/* ====== 初期状態 ====== */
-switchMode('quick');
-applyGridClass(diceCount);
-</script>
+  </script>
 </body>
 </html>
