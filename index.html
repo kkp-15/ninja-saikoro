@@ -4,14 +4,14 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
 <title>サイコロの術 🎲</title>
-<meta name="description" content="サイコロの数を選んでワンタップで振る、シンプルで色味のあるダイスロール。大きい目で見やすいUI。" />
+<meta name="description" content="クイック / 決める / RPG の3モード。大きく見やすいサイコロ、スワイプで再ロール。シンプルUI。">
 
 <style>
   :root{
     --bg:#f7f7fb; --fg:#111827; --muted:#6b7280;
     --die:#ffffff; --border:#e5e7eb; --radius:18px;
     --pip:28%; --gap:12px; --die-min:110px;
-    --btn1:#6366f1; --btn2:#06b6d4; /* ボタンのグラデ */
+    --btn1:#6366f1; --btn2:#06b6d4; /* ボタン/チップのグラデ */
   }
   @media (prefers-color-scheme: dark){
     :root{
@@ -23,16 +23,17 @@
   *{box-sizing:border-box}
   body{
     margin:0; font-family: system-ui,-apple-system,"Segoe UI",Roboto,"Hiragino Kaku Gothic ProN",sans-serif;
-    background: radial-gradient(1000px 700px at 80% -10%, rgba(99,102,241,.10), transparent 50%),
-                radial-gradient(900px 600px at -10% 40%, rgba(6,182,212,.10), transparent 55%),
-                var(--bg);
-    color:var(--fg); padding:16px; line-height:1.4;
+    background:
+      radial-gradient(1000px 700px at 80% -10%, rgba(99,102,241,.10), transparent 50%),
+      radial-gradient(900px 600px at -10% 40%, rgba(6,182,212,.10), transparent 55%),
+      var(--bg);
+    color:var(--fg); padding:16px; line-height:1.45;
   }
   h1{margin:0 0 8px; font-size: clamp(18px,4.5dvw,28px); font-weight:800;}
   .sub{color:var(--muted); margin-bottom:14px; font-size:.95rem}
 
-  /* コントロール */
-  .chips{display:flex; flex-wrap:wrap; gap:8px; margin-bottom:12px}
+  /* モード切替チップ */
+  .chips{display:flex; flex-wrap:wrap; gap:8px; margin:10px 0 14px}
   .chip{
     border:1px solid var(--border); border-radius:999px; padding:10px 14px;
     background:transparent; color:var(--fg); font-weight:700; cursor:pointer;
@@ -41,6 +42,8 @@
     color:#fff; border-color: transparent;
     background: linear-gradient(135deg, var(--btn1), var(--btn2));
   }
+
+  /* メインボタン */
   .primary{
     width:100%; border:none; border-radius:14px; padding:16px 18px; font-weight:800;
     font-size: clamp(16px,3.8dvw,20px); color:#fff;
@@ -49,13 +52,17 @@
     cursor:pointer;
   }
 
-  /* ダイス */
+  /* トグル（バイブ） */
+  .opts{display:flex; align-items:center; gap:12px; margin-bottom:10px}
+  .tog{display:inline-flex; align-items:center; gap:8px; border:1px solid var(--border); border-radius:10px; padding:8px 12px}
+  .tog input{accent-color:#3b82f6}
+
+  /* クイック：ダイス盤面 */
   .dice-area{
     margin-top:14px;
     display:grid; grid-template-columns: repeat(auto-fit, minmax(var(--die-min), 1fr));
     gap: var(--gap);
   }
-  /* 個数でスケール調整 */
   .dice-area.one{ --die-min: min(72dvw, 260px); --pip:34%; --gap:16px;}
   .dice-area.few{ --die-min: 140px; --pip:30%; --gap:14px;}
   .dice-area.many{ --die-min: 110px; --pip:26%; --gap:12px;}
@@ -63,8 +70,8 @@
   .die{
     aspect-ratio:1/1; border-radius: var(--radius); background: var(--die);
     border:1px solid var(--border); display:grid; place-items:center; position:relative;
-    /* 顔色をCSS変数 --h で受け取り、淡い色リングを作る */
-    --h: 210; /* 予備値 */
+    /* 出目色：CSS変数 --h を受け取る（淡色のリング） */
+    --h: 210;
     background:
       radial-gradient(60% 55% at 50% 35%, hsl(var(--h) 100% 94%) 0%, transparent 65%),
       var(--die);
@@ -82,7 +89,6 @@
         inset 0 0 0 1px hsl(var(--h) 70% 55% / .30);
     }
   }
-
   .face{
     position:absolute; inset:8%; border-radius:14px;
     display:grid; grid-template-columns: repeat(3,1fr); grid-template-rows: repeat(3,1fr);
@@ -96,7 +102,6 @@
     .pip{ background:#ffffff; box-shadow:none; }
   }
 
-  /* 結果 */
   .result{
     margin-top:12px; font-weight:800; font-size: clamp(16px,3.5dvw,22px);
     display:inline-block; padding:6px 10px; border-radius:10px;
@@ -105,29 +110,77 @@
   }
   .hint{ color:var(--muted); font-size:.92rem; margin-top:6px}
 
-  /* フッター（最小構成） */
+  /* 決める（1〜N） */
+  .decide-wrap{display:flex; gap:10px; align-items:center; margin:6px 0 12px}
+  .num-input{
+    flex:1; border:1px solid var(--border); border-radius:12px; padding:12px 14px;
+    font-weight:700; font-size:1rem; background:var(--die); color:var(--fg);
+  }
+  .num-input:invalid{ outline:2px solid #ef4444 }
+
+  /* RPGモードのダイス種 */
+  .dice-types{display:flex; flex-wrap:wrap; gap:8px; margin:6px 0 12px}
+
+  /* フッター（最小） */
   #footer{ margin-top:22px; color:var(--muted); font-size:.9rem; text-align:center}
   #footer a{ color:inherit; text-decoration:underline}
 </style>
 </head>
 <body>
   <h1>サイコロの術 🎲</h1>
-  <div class="sub">個数を選んで振るだけ。シンプル＆見やすい、ちょい彩り。</div>
+  <div class="sub">クイック / 決める / RPG。必要なときに、1タップ。</div>
 
-  <div class="chips" id="chips">
-    <button class="chip" data-n="1">1個</button>
-    <button class="chip active" data-n="2">2個</button>
-    <button class="chip" data-n="3">3個</button>
-    <button class="chip" data-n="4">4個</button>
-    <button class="chip" data-n="5">5個</button>
-    <button class="chip" data-n="6">6個</button>
+  <!-- モード切替 -->
+  <div class="chips" id="modeChips">
+    <button class="chip active" data-mode="quick">クイック</button>
+    <button class="chip" data-mode="decide">決める</button>
+    <button class="chip" data-mode="rpg">RPG</button>
   </div>
 
-  <button id="rollBtn" class="primary">振る！</button>
+  <!-- 共通オプション -->
+  <div class="opts">
+    <label class="tog"><input type="checkbox" id="vib" checked> バイブ</label>
+    <div style="color:var(--muted); font-size:.9rem">※下→上スワイプで再ロール</div>
+  </div>
 
-  <div id="diceArea" class="dice-area"></div>
-  <div id="sum" class="result" style="display:none"></div>
-  <div id="detail" class="hint" style="display:none"></div>
+  <!-- クイック：サイコロ個数 -->
+  <div id="quick" class="mode">
+    <div class="chips" id="countChips">
+      <button class="chip" data-n="1">1個</button>
+      <button class="chip active" data-n="2">2個</button>
+      <button class="chip" data-n="3">3個</button>
+      <button class="chip" data-n="4">4個</button>
+      <button class="chip" data-n="5">5個</button>
+      <button class="chip" data-n="6">6個</button>
+    </div>
+    <button id="rollQuick" class="primary">振る！</button>
+    <div id="diceArea" class="dice-area"></div>
+    <div id="sumQuick" class="result" style="display:none"></div>
+    <div id="detailQuick" class="hint" style="display:none"></div>
+  </div>
+
+  <!-- 決める：1〜N の整数 -->
+  <div id="decide" class="mode" style="display:none">
+    <div class="decide-wrap">
+      <label for="maxN" class="sub" style="min-width:4.5em">最大N</label>
+      <input id="maxN" class="num-input" type="number" inputmode="numeric" min="2" max="999999" value="6" />
+    </div>
+    <button id="rollDecide" class="primary">振る！</button>
+    <div id="sumDecide" class="result" style="display:none"></div>
+  </div>
+
+  <!-- RPG：ダイス種（1個）-->
+  <div id="rpg" class="mode" style="display:none">
+    <div class="dice-types" id="typeChips">
+      <button class="chip active" data-sides="6">D6</button>
+      <button class="chip" data-sides="8">D8</button>
+      <button class="chip" data-sides="10">D10</button>
+      <button class="chip" data-sides="12">D12</button>
+      <button class="chip" data-sides="20">D20</button>
+    </div>
+    <button id="rollRPG" class="primary">振る！</button>
+    <div id="sumRPG" class="result" style="display:none"></div>
+  </div>
 
   <div id="footer">
     X <a href="https://x.com/kkp_webninja" target="_blank">@kkp_webninja</a> ・
@@ -137,18 +190,17 @@
 <script>
 const $ = s => document.querySelector(s);
 const $$ = s => [...document.querySelectorAll(s)];
-const chips = $('#chips');
-const diceArea = $('#diceArea');
-const rollBtn = $('#rollBtn');
-const sumEl = $('#sum');
-const detailEl = $('#detail');
 
-let diceCount = 2;
+/* ====== 状態 ====== */
+let mode = 'quick';
+let diceCount = 2;     // クイック
+let rpgSides = 6;      // RPG
+let lastAction = null; // スワイプ再ロールで使う
 
-/* 出目ごとの色相（HSLのh値） */
+/* ====== 出目→色相 ====== */
 const HUES = [355, 25, 50, 200, 150, 280]; // 1:赤,2:橙,3:黄緑,4:水色,5:ミント,6:紫
 
-/* 3x3ピップ配置 */
+/* ====== ピップ配置（3x3） ====== */
 function pipLayout(n){
   const one =   [0,0,0, 0,1,0, 0,0,0];
   const two =   [1,0,0, 0,0,0, 0,0,1];
@@ -161,9 +213,7 @@ function pipLayout(n){
 function createDie(face=1){
   const d = document.createElement('div');
   d.className = 'die';
-  /* 顔色をCSS変数で渡す */
-  d.style.setProperty('--h', HUES[face-1]);
-
+  d.style.setProperty('--h', HUES[face-1] ?? 210);
   const f = document.createElement('div'); f.className = 'face';
   const layout = pipLayout(face);
   for(let i=0;i<9;i++){
@@ -174,7 +224,8 @@ function createDie(face=1){
   return d;
 }
 
-/* 個数でスケール調整 */
+/* ====== クイック：個数でサイズクラス付与 ====== */
+const diceArea = $('#diceArea');
 function applyGridClass(n){
   diceArea.classList.remove('one','few','many');
   if(n===1) diceArea.classList.add('one');
@@ -182,34 +233,111 @@ function applyGridClass(n){
   else diceArea.classList.add('many');
 }
 
-/* ロール */
-function roll(){
+/* ====== バイブ ====== */
+function buzz(){ if($('#vib').checked && navigator.vibrate) navigator.vibrate(18); }
+
+/* ====== ロール処理 ====== */
+function rollQuick(){
   applyGridClass(diceCount);
   diceArea.innerHTML = '';
   const faces = [];
   let sum = 0;
   for(let i=0;i<diceCount;i++){
-    const r = Math.floor(Math.random()*6)+1;
+    const r = (Math.random()*6|0)+1;
     faces.push(r); sum += r;
     diceArea.appendChild(createDie(r));
   }
-  sumEl.textContent = `合計 ${sum}`;
-  detailEl.textContent = `内訳: ${faces.join(' / ')}`;
-  sumEl.style.display = 'inline-block';
-  detailEl.style.display = 'block';
+  $('#sumQuick').textContent = `合計 ${sum}`;
+  $('#sumQuick').style.display = 'inline-block';
+  $('#detailQuick').textContent = `内訳: ${faces.join(' / ')}`;
+  $('#detailQuick').style.display = 'block';
+  buzz();
+  lastAction = rollQuick;
+}
+function rollDecide(){
+  const max = parseInt($('#maxN').value,10);
+  if(!Number.isFinite(max) || max < 2 || max > 999999){
+    $('#maxN').focus();
+    $('#maxN').reportValidity?.();
+    return;
+  }
+  const val = (Math.random()*max|0)+1;
+  $('#sumDecide').textContent = String(val);
+  $('#sumDecide').style.display = 'inline-block';
+  buzz();
+  lastAction = rollDecide;
+}
+function rollRPG(){
+  const val = (Math.random()*rpgSides|0)+1;
+  $('#sumRPG').textContent = `D${rpgSides} → ${val}`;
+  $('#sumRPG').style.display = 'inline-block';
+  buzz();
+  lastAction = rollRPG;
 }
 
-/* イベント */
-chips.addEventListener('click', e=>{
+/* ====== モード切替 ====== */
+function switchMode(next){
+  if(mode === next) return;
+  mode = next;
+  $$('.chip[data-mode]').forEach(c=>c.classList.toggle('active', c.dataset.mode===next));
+  // 表示切替
+  $('#quick').style.display = (next==='quick') ? 'block' : 'none';
+  $('#decide').style.display = (next==='decide') ? 'block' : 'none';
+  $('#rpg').style.display   = (next==='rpg') ? 'block' : 'none';
+  // フォーカス系リセット軽め
+  if(next==='quick') { $('#sumQuick').style.display='none'; $('#detailQuick').style.display='none'; diceArea.innerHTML=''; }
+  if(next==='decide'){ $('#sumDecide').style.display='none'; }
+  if(next==='rpg')   { $('#sumRPG').style.display='none'; }
+  // 直前アクション無効（誤スワイプ防止）
+  lastAction = null;
+}
+
+/* ====== イベント登録 ====== */
+// モード
+$('#modeChips').addEventListener('click', e=>{
   const b = e.target.closest('.chip'); if(!b) return;
-  $$('.chip').forEach(c=>c.classList.remove('active'));
+  switchMode(b.dataset.mode);
+});
+// クイック：個数
+$('#countChips').addEventListener('click', e=>{
+  const b = e.target.closest('.chip'); if(!b) return;
+  $$('#countChips .chip').forEach(c=>c.classList.remove('active'));
   b.classList.add('active');
   diceCount = parseInt(b.dataset.n,10);
   applyGridClass(diceCount);
 });
-rollBtn.addEventListener('click', roll);
+// RPG：面数
+$('#typeChips').addEventListener('click', e=>{
+  const b = e.target.closest('.chip'); if(!b) return;
+  $$('#typeChips .chip').forEach(c=>c.classList.remove('active'));
+  b.classList.add('active');
+  rpgSides = parseInt(b.dataset.sides,10);
+});
 
-/* 初期状態 */
+// ボタン
+$('#rollQuick').addEventListener('click', rollQuick);
+$('#rollDecide').addEventListener('click', rollDecide);
+$('#rollRPG').addEventListener('click', rollRPG);
+
+/* ====== スワイプで再ロール（下→上） ====== */
+let tStartY = null;
+window.addEventListener('touchstart', e=>{
+  tStartY = e.changedTouches?.[0]?.clientY ?? null;
+},{passive:true});
+window.addEventListener('touchend', e=>{
+  const endY = e.changedTouches?.[0]?.clientY ?? null;
+  if(tStartY==null || endY==null) return;
+  const dy = endY - tStartY; // 上にスワイプで負
+  if(dy < -40){ // 上方向しきい値
+    if(mode==='quick') rollQuick();
+    else if(mode==='decide') rollDecide();
+    else if(mode==='rpg') rollRPG();
+  }
+  tStartY = null;
+},{passive:true});
+
+/* ====== 初期状態 ====== */
+switchMode('quick');
 applyGridClass(diceCount);
 </script>
 </body>
