@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+<title>サイコロの術 🎲 - 超気持ちいいダイスロール</title>
+
+<!-- SEO -->
+<meta name="description" content="サクッと超気持ちいいダイスロール。サイコロ個数をワンタップ選択→転がるアニメ→合計・内訳表示。履歴保存・効果音・バイブ対応・ダークモード自動。" />
+<meta name="keywords" content="サイコロ, ダイス, 乱数, ロール, tabletop, TRPG, ボードゲーム, 確率, 便利ツール" />
+
+<!-- OGP -->
+<meta property="og:title" content="サイコロの術 🎲" />
+<meta property="og:description" content="ワンタップで気持ちいい！転がるアニメ＋合計・内訳＋履歴保存の高UIダイス。" />
+<meta property="og:type" content="website" />
+<meta property="og:url" content="https://dice.kkpwebninja.com/" />
+<meta property="og:image" content="https://dice.kkpwebninja.com/card.png" />
+<meta name="twitter:card" content="summary_large_image" />
+
+<!-- PWAに拡張する場合は後でmanifestとservice workerを追加すればOK -->
+
+<style>
+  :root{
+    --bg:#f7f7fb;
+    --fg:#0f1222;
+    --muted:#6b7280;
+    --brand:#635bff;
+    --brand-2:#00c2ff;
+    --card:#ffffff;
+    --border:rgba(0,0,0,.06);
+    --shadow: 0 10px 30px rgba(0,0,0,.08), 0 2px 8px rgba(0,0,0,.06);
+    --radius:18px;
+  }
+  @media (prefers-color-scheme: dark){
+    :root{
+      --bg:#0b0d12;
+      --fg:#e8ebff;
+      --muted:#9aa2b2;
+      --brand:#8d85ff;
+      --brand-2:#41d9ff;
+      --card:#111423;
+      --border:rgba(255,255,255,.08);
+      --shadow: 0 10px 30px rgba(0,0,0,.35), 0 2px 8px rgba(0,0,0,.35);
+    }
+  }
+  *{box-sizing:border-box}
+  html,body{height:100%}
+  body{
+    margin:0; font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Hiragino Kaku Gothic ProN", sans-serif;
+    background: radial-gradient(1200px 800px at 70% -10%, rgba(99,91,255,.12), transparent 60%),
+                radial-gradient(1000px 700px at -10% 30%, rgba(0,194,255,.10), transparent 60%),
+                var(--bg);
+    color:var(--fg); padding: clamp(12px, 2dvw, 24px);
+  }
+  header{
+    display:flex; align-items:center; justify-content:space-between; gap:12px; margin:0 auto 14px;
+    max-width: 960px;
+  }
+  .title{
+    display:flex; align-items:center; gap:12px;
+  }
+  .logo{
+    width:42px; height:42px; border-radius:12px; background:
+      radial-gradient(circle at 30% 30%, #fff, rgba(255,255,255,.2) 40%, transparent 60%),
+      linear-gradient(135deg, var(--brand), var(--brand-2));
+    box-shadow: var(--shadow);
+    display:grid; place-items:center; font-size:22px;
+    user-select:none;
+  }
+  h1{font-size: clamp(18px, 4dvw, 28px); margin:0;}
+  .sub{color:var(--muted); font-size: .92rem; margin-top:2px}
+
+  .wrap{max-width:960px; margin:0 auto; display:grid; gap:16px}
+  .card{
+    background:var(--card); border:1px solid var(--border); border-radius:var(--radius);
+    padding: clamp(12px, 2dvw, 18px); box-shadow: var(--shadow);
+  }
+
+  /* コントロール */
+  .controls{display:grid; gap:12px}
+  .row{display:flex; flex-wrap:wrap; gap:10px; align-items:center}
+  .chips{display:flex; flex-wrap:wrap; gap:8px}
+  .chip{
+    padding:10px 14px; border-radius:999px; border:1px solid var(--border);
+    background:linear-gradient(180deg, rgba(255,255,255,.06), rgba(0,0,0,.03));
+    backdrop-filter: blur(4px);
+    cursor:pointer; user-select:none; font-weight:600; font-size:.98rem;
+    transition:.2s transform, .2s background; 
+  }
+  .chip.active{outline:2px solid var(--brand); transform: translateY(-1px)}
+  .select{
+    padding:10px 12px; border-radius:12px; border:1px solid var(--border);
+    background:var(--card); color:var(--fg); font-weight:600;
+  }
+  .tog{
+    display:inline-flex; align-items:center; gap:8px; cursor:pointer; user-select:none;
+    padding:8px 12px; border-radius:12px; border:1px solid var(--border);
+  }
+  .tog input{accent-color: var(--brand)}
+  .grow{flex:1}
+
+  /* サイコロ盤面 */
+  .dice-area{
+    display:grid; grid-template-columns: repeat(auto-fit, minmax(82px, 1fr));
+    gap:12px; align-items:stretch;
+  }
+  .die{
+    aspect-ratio:1/1; border-radius:18px; position:relative; 
+    background: linear-gradient(160deg, #fff, #f1f3ff);
+    border:1px solid var(--border); box-shadow: var(--shadow);
+    display:grid; place-items:center;
+    transform-style: preserve-3d; 
+  }
+  @media (prefers-color-scheme: dark){
+    .die{ background: linear-gradient(160deg, #1a1f35, #12162a);}
+    .pip{background: #fff}
+  }
+  .die.roll{ animation: spin .6s cubic-bezier(.2,.7,.2,1) }
+  @keyframes spin {
+    0%{ transform: rotateX(0) rotateY(0) }
+    50%{ transform: rotateX(220deg) rotateY(140deg) }
+    100%{ transform: rotateX(360deg) rotateY(360deg) }
+  }
+  .face{
+    position:absolute; inset:8%; border-radius:14px;
+    display:grid; grid-template-columns: repeat(3,1fr); grid-template-rows: repeat(3,1fr);
+    place-items:center; gap:6%;
+  }
+  .pip{
+    width:20%; aspect-ratio:1/1; border-radius:50%;
+    background:#1b2037; box-shadow: inset 0 -1px 1px rgba(255,255,255,.4);
+  }
+
+  /* 結果 */
+  .result{
+    display:flex; flex-wrap:wrap; gap:12px; align-items:center; justify-content:space-between;
+    padding:10px 12px; border-radius:14px; border:1px dashed var(--border);
+    background: linear-gradient(180deg, rgba(99,91,255,.08), transparent);
+  }
+  .nums{color:var(--muted); font-size:.95rem}
+  .sum{font-weight:800; font-size: clamp(18px, 3.5dvw, 26px)}
+
+  /* ボタン */
+  .primary{
+    display:inline-flex; align-items:center; justify-content:center; gap:10px;
+    width:100%; padding:16px 18px; font-size: clamp(16px, 3.8dvw, 20px); font-weight:800;
+    color:#fff; background: linear-gradient(135deg, var(--brand), var(--brand-2));
+    border:none; border-radius:16px; cursor:pointer; box-shadow: var(--shadow);
+    transition: transform .06s ease;
+  }
+  .primary:active{ transform: translateY(1px) scale(.995) }
+
+  .ghost{ border:1px solid var(--border); background:transparent; color:var(--fg); border-radius:12px; padding:10px 14px; cursor:pointer}
+  .toolbar{display:flex; gap:10px; flex-wrap:wrap}
+
+  /* 履歴 */
+  .history-list{display:grid; gap:8px; max-height:260px; overflow:auto; padding-right:4px}
+  .hist{
+    display:flex; gap:10px; align-items:center; justify-content:space-between;
+    border:1px solid var(--border); border-radius:12px; padding:8px 10px; background:linear-gradient(180deg, rgba(255,255,255,.06), rgba(0,0,0,.02));
+  }
+  .hist .meta{color:var(--muted); font-size:.85rem}
+  .faces{display:flex; gap:4px; flex-wrap:wrap}
+  .pill{
+    border:1px solid var(--border); border-radius:999px; padding:2px 8px; font-weight:700; font-size:.9rem;
+    background: linear-gradient(180deg, rgba(255,255,255,.08), rgba(0,0,0,.04));
+  }
+
+  /* フッター（いつもの） */
+  #footer{
+    text-align:center; color:var(--muted); margin-top: 8px;
+  }
+  #footer a{color:inherit; text-decoration: underline}
+</style>
+
+<!-- Google Analytics: いつものアナリティクス -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-2LM85GJN0L"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments)}
+  gtag('js', new Date());
+  gtag('config', 'G-2LM85GJN0L');
+</script>
+</head>
+<body>
+  <header>
+    <div class="title">
+      <div class="logo">🎲</div>
+      <div>
+        <h1>サイコロの術</h1>
+        <div class="sub">ワンタップ・超気持ちいいダイスロール。履歴保存＆シェア対応。</div>
+      </div>
+    </div>
+    <div class="toolbar">
+      <button id="shareBtn" class="ghost" title="結果をXでシェア">共有</button>
+      <button id="clearBtn" class="ghost" title="履歴をすべて削除">履歴クリア</button>
+    </div>
+  </header>
+
+  <main class="wrap">
+    <section class="card controls">
+      <div class="row">
+        <strong>サイコロ個数</strong>
+        <div class="chips" id="chips">
+          <!-- ワンタッププリセット -->
+          <button class="chip" data-n="1">1個</button>
+          <button class="chip active" data-n="2">2個</button>
+          <button class="chip" data-n="3">3個</button>
+          <button class="chip" data-n="4">4個</button>
+          <button class="chip" data-n="5">5個</button>
+          <button class="chip" data-n="6">6個</button>
+        </div>
+        <div class="grow"></div>
+        <label class="tog" title="効果音の再生を切り替え">
+          <input type="checkbox" id="snd" checked> 効果音
+        </label>
+        <label class="tog" title="端末のバイブレーションを使用">
+          <input type="checkbox" id="vib" checked> バイブ
+        </label>
+      </div>
+
+      <button id="rollBtn" class="primary">振る！</button>
+
+      <div id="diceArea" class="dice-area" aria-live="polite"></div>
+
+      <div class="result" id="resultBar" style="display:none">
+        <div class="nums" id="nums"></div>
+        <div class="sum" id="sum"></div>
+      </div>
+    </section>
+
+    <section class="card">
+      <div style="display:flex; align-items:center; justify-content:space-between; gap:10px; margin-bottom:8px">
+        <strong>履歴（最新10件）</strong>
+        <small class="sub">端末に保存されます</small>
+      </div>
+      <div id="history" class="history-list"></div>
+    </section>
+
+    <section class="card" id="links">
+      <div class="toolbar">
+        <a class="ghost" href="https://bingomachine.kkpwebninja.com/" target="_blank" rel="noopener">→ ビンゴの術（抽選機）へ</a>
+      </div>
+    </section>
+
+    <div id="footer">
+      X <a href="https://x.com/kkp_webninja" target="_blank">@kkp_webninja</a> <br>
+      🏯 <a href="https://kkpwebninja.com" target="_blank">web忍者の本丸</a><br>
+    </div>
+  </main>
+
+<script>
+/* ========= ユーティリティ ========= */
+const $ = sel => document.querySelector(sel);
+const $$ = sel => [...document.querySelectorAll(sel)];
+const diceArea = $('#diceArea');
+const sumEl = $('#sum');
+const numsEl = $('#nums');
+const resultBar = $('#resultBar');
+const chips = $('#chips');
+const shareBtn = $('#shareBtn');
+const clearBtn = $('#clearBtn');
+const rollBtn = $('#rollBtn');
+const snd = $('#snd'); const vib = $('#vib');
+
+let diceCount = 2;
+let lastRoll = null;
+
+/* ========= 効果音（WebAudio） ========= */
+let audioCtx;
+function playRollSound(){
+  if(!snd.checked) return;
+  try{
+    if(!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    const osc = audioCtx.createOscillator();
+    const gain = audioCtx.createGain();
+    osc.type = 'triangle';
+    osc.frequency.setValueAtTime(240, audioCtx.currentTime);
+    osc.frequency.exponentialRampToValueAtTime(40, audioCtx.currentTime + 0.3);
+    gain.gain.setValueAtTime(0.0001, audioCtx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.3, audioCtx.currentTime + 0.02);
+    gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 0.32);
+    osc.connect(gain).connect(audioCtx.destination);
+    osc.start(); osc.stop(audioCtx.currentTime + 0.33);
+  }catch(e){}
+}
+function buzz(){
+  if(vib.checked && navigator.vibrate) navigator.vibrate(18);
+}
+
+/* ========= サイコロDOM生成 ========= */
+function createDie(face=1){
+  const d = document.createElement('div');
+  d.className = 'die roll';
+  const f = document.createElement('div');
+  f.className = 'face';
+  const layout = pipLayout(face);
+  for(let i=0;i<9;i++){
+    if(layout[i]){
+      const p = document.createElement('div');
+      p.className = 'pip';
+      f.appendChild(p);
+    }else{
+      const s = document.createElement('div'); f.appendChild(s);
+    }
+  }
+  d.appendChild(f);
+  // アニメ終了後にクラスを外す
+  d.addEventListener('animationend', ()=> d.classList.remove('roll'), {once:true});
+  return d;
+}
+// 1〜6の配置（3x3グリッド）
+function pipLayout(n){
+  // 0:空, 1:ピップ
+  // インデックス: 0 1 2 / 3 4 5 / 6 7 8
+  const center = [0,0,0,0,1,0,0,0,0];
+  const one =   [0,0,0,0,1,0,0,0,0];
+  const two =   [1,0,0,0,0,0,0,0,1];
+  const three = [1,0,0,0,1,0,0,0,1];
+  const four =  [1,0,1,0,0,0,1,0,1];
+  const five =  [1,0,1,0,1,0,1,0,1];
+  const six =   [1,0,1,1,0,1,1,0,1];
+  return [one, two, three, four, five, six][n-1];
+}
+
+/* ========= ロール処理 ========= */
+function roll(){
+  playRollSound();
+  buzz();
+
+  diceArea.innerHTML = '';
+  const faces = [];
+  let sum = 0;
+  for(let i=0;i<diceCount;i++){
+    const r = Math.floor(Math.random()*6)+1;
+    faces.push(r); sum += r;
+    diceArea.appendChild(createDie(r));
+  }
+  lastRoll = {faces, sum, ts: Date.now(), n:diceCount};
+  // 表示
+  sumEl.textContent = `合計 ${sum}`;
+  numsEl.textContent = `内訳: ${faces.join(' / ')}`;
+  resultBar.style.display = 'flex';
+
+  saveHistory(lastRoll);
+  renderHistory();
+}
+
+/* ========= 履歴（localStorage） ========= */
+const KEY = 'dice.history.v1';
+function loadHistory(){
+  try{ return JSON.parse(localStorage.getItem(KEY) || '[]'); }
+  catch(e){ return []; }
+}
+function saveHistory(entry){
+  const arr = loadHistory();
+  arr.unshift(entry);
+  if(arr.length>10) arr.length = 10;
+  localStorage.setItem(KEY, JSON.stringify(arr));
+}
+function clearHistory(){
+  localStorage.removeItem(KEY);
+  renderHistory();
+}
+function renderHistory(){
+  const arr = loadHistory();
+  const wrap = $('#history');
+  wrap.innerHTML = '';
+  if(arr.length===0){
+    wrap.innerHTML = '<div class="sub">まだ履歴はありません。振ってみましょう！</div>';
+    return;
+  }
+  arr.forEach(item=>{
+    const row = document.createElement('div'); row.className='hist';
+    const left = document.createElement('div');
+    const dt = new Date(item.ts);
+    left.innerHTML = `<div class="meta">${dt.toLocaleString()}</div>
+                      <div class="faces">${item.faces.map(f=>`<span class="pill">${f}</span>`).join('')}</div>`;
+    const right = document.createElement('div');
+    right.innerHTML = `<strong>合計 ${item.sum}</strong> / <span class="meta">${item.n}個</span>`;
+    row.append(left,right);
+    wrap.appendChild(row);
+  });
+}
+
+/* ========= シェア ========= */
+function shareToX(){
+  const h = loadHistory()[0];
+  if(!h){ alert('まだ振っていません'); return; }
+  const text = `サイコロの術🎲\n${h.n}個ロール → 合計 ${h.sum}\n内訳: ${h.faces.join(' / ')}\n#サイコロ #ダイス\n\nhttps://dice.kkpwebninja.com/?v=2\n\n@kkp_webninja`;
+  const url = `https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}`;
+  window.open(url, '_blank');
+}
+
+/* ========= イベント登録 ========= */
+chips.addEventListener('click', e=>{
+  const b = e.target.closest('.chip'); if(!b) return;
+  $$('.chip').forEach(c=>c.classList.remove('active'));
+  b.classList.add('active');
+  diceCount = parseInt(b.dataset.n, 10);
+});
+rollBtn.addEventListener('click', roll);
+shareBtn.addEventListener('click', shareToX);
+clearBtn.addEventListener('click', ()=>{
+  if(confirm('履歴をすべて削除しますか？')) clearHistory();
+});
+
+/* 初期描画 */
+renderHistory();
+</script>
+</body>
+</html>
