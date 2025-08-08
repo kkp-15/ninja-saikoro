@@ -4,24 +4,29 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
 <title>サイコロの術 🎲</title>
-<meta name="description" content="サイコロの数を選んでワンタップで振る、シンプルなダイスロール。大きい目で見やすいUI。" />
+<meta name="description" content="サイコロの数を選んでワンタップで振る、シンプルで色味のあるダイスロール。大きい目で見やすいUI。" />
 
 <style>
   :root{
-    --bg:#f7f7fb; --fg:#111827; --muted:#6b7280; --accent:#111827;
+    --bg:#f7f7fb; --fg:#111827; --muted:#6b7280;
     --die:#ffffff; --border:#e5e7eb; --radius:18px;
-    --pip:28%;
-    --gap:12px;
-    --die-min:110px;
+    --pip:28%; --gap:12px; --die-min:110px;
+    --btn1:#6366f1; --btn2:#06b6d4; /* ボタンのグラデ */
   }
   @media (prefers-color-scheme: dark){
-    :root{ --bg:#0b0d12; --fg:#e5e7eb; --muted:#9aa2b2; --accent:#e5e7eb;
-           --die:#15192d; --border:#2a2f45; }
+    :root{
+      --bg:#0b0d12; --fg:#e5e7eb; --muted:#9aa2b2;
+      --die:#15192d; --border:#2a2f45;
+      --btn1:#7c7bff; --btn2:#3bd6e9;
+    }
   }
   *{box-sizing:border-box}
   body{
     margin:0; font-family: system-ui,-apple-system,"Segoe UI",Roboto,"Hiragino Kaku Gothic ProN",sans-serif;
-    background:var(--bg); color:var(--fg); padding:16px; line-height:1.4;
+    background: radial-gradient(1000px 700px at 80% -10%, rgba(99,102,241,.10), transparent 50%),
+                radial-gradient(900px 600px at -10% 40%, rgba(6,182,212,.10), transparent 55%),
+                var(--bg);
+    color:var(--fg); padding:16px; line-height:1.4;
   }
   h1{margin:0 0 8px; font-size: clamp(18px,4.5dvw,28px); font-weight:800;}
   .sub{color:var(--muted); margin-bottom:14px; font-size:.95rem}
@@ -32,10 +37,15 @@
     border:1px solid var(--border); border-radius:999px; padding:10px 14px;
     background:transparent; color:var(--fg); font-weight:700; cursor:pointer;
   }
-  .chip.active{ background: var(--fg); color: var(--bg); border-color: var(--fg); }
+  .chip.active{
+    color:#fff; border-color: transparent;
+    background: linear-gradient(135deg, var(--btn1), var(--btn2));
+  }
   .primary{
     width:100%; border:none; border-radius:14px; padding:16px 18px; font-weight:800;
-    font-size: clamp(16px,3.8dvw,20px); color: var(--bg); background: var(--accent);
+    font-size: clamp(16px,3.8dvw,20px); color:#fff;
+    background: linear-gradient(135deg, var(--btn1), var(--btn2));
+    box-shadow: 0 10px 24px rgba(0,0,0,.12);
     cursor:pointer;
   }
 
@@ -45,29 +55,54 @@
     display:grid; grid-template-columns: repeat(auto-fit, minmax(var(--die-min), 1fr));
     gap: var(--gap);
   }
+  /* 個数でスケール調整 */
   .dice-area.one{ --die-min: min(72dvw, 260px); --pip:34%; --gap:16px;}
   .dice-area.few{ --die-min: 140px; --pip:30%; --gap:14px;}
   .dice-area.many{ --die-min: 110px; --pip:26%; --gap:12px;}
 
   .die{
-    aspect-ratio:1/1; border-radius: var(--radius); background: var(--die); border:1px solid var(--border);
-    display:grid; place-items:center; position:relative;
+    aspect-ratio:1/1; border-radius: var(--radius); background: var(--die);
+    border:1px solid var(--border); display:grid; place-items:center; position:relative;
+    /* 顔色をCSS変数 --h で受け取り、淡い色リングを作る */
+    --h: 210; /* 予備値 */
+    background:
+      radial-gradient(60% 55% at 50% 35%, hsl(var(--h) 100% 94%) 0%, transparent 65%),
+      var(--die);
+    box-shadow:
+      0 6px 18px hsl(var(--h) 80% 40% / .10),
+      inset 0 0 0 1px hsl(var(--h) 60% 75% / .40);
   }
+  @media (prefers-color-scheme: dark){
+    .die{
+      background:
+        radial-gradient(60% 55% at 50% 35%, hsl(var(--h) 80% 20% / .55) 0%, transparent 65%),
+        var(--die);
+      box-shadow:
+        0 8px 20px hsl(var(--h) 80% 30% / .25),
+        inset 0 0 0 1px hsl(var(--h) 70% 55% / .30);
+    }
+  }
+
   .face{
     position:absolute; inset:8%; border-radius:14px;
     display:grid; grid-template-columns: repeat(3,1fr); grid-template-rows: repeat(3,1fr);
     place-items:center; gap:4%;
   }
   .pip{
-    width: var(--pip); aspect-ratio:1/1; border-radius:50%; background:#111827;
-    box-shadow: inset 0 -1px 1px rgba(255,255,255,.35);
+    width: var(--pip); aspect-ratio:1/1; border-radius:50%;
+    background:#111827; box-shadow: inset 0 -1px 1px rgba(255,255,255,.35);
   }
   @media (prefers-color-scheme: dark){
     .pip{ background:#ffffff; box-shadow:none; }
   }
 
   /* 結果 */
-  .result{ margin-top:12px; font-weight:800; font-size: clamp(16px,3.5dvw,22px)}
+  .result{
+    margin-top:12px; font-weight:800; font-size: clamp(16px,3.5dvw,22px);
+    display:inline-block; padding:6px 10px; border-radius:10px;
+    background: linear-gradient(135deg, var(--btn1), var(--btn2));
+    color:#fff;
+  }
   .hint{ color:var(--muted); font-size:.92rem; margin-top:6px}
 
   /* フッター（最小構成） */
@@ -77,7 +112,7 @@
 </head>
 <body>
   <h1>サイコロの術 🎲</h1>
-  <div class="sub">個数を選んで振るだけ。シンプル＆見やすい。</div>
+  <div class="sub">個数を選んで振るだけ。シンプル＆見やすい、ちょい彩り。</div>
 
   <div class="chips" id="chips">
     <button class="chip" data-n="1">1個</button>
@@ -110,6 +145,9 @@ const detailEl = $('#detail');
 
 let diceCount = 2;
 
+/* 出目ごとの色相（HSLのh値） */
+const HUES = [355, 25, 50, 200, 150, 280]; // 1:赤,2:橙,3:黄緑,4:水色,5:ミント,6:紫
+
 /* 3x3ピップ配置 */
 function pipLayout(n){
   const one =   [0,0,0, 0,1,0, 0,0,0];
@@ -123,6 +161,9 @@ function pipLayout(n){
 function createDie(face=1){
   const d = document.createElement('div');
   d.className = 'die';
+  /* 顔色をCSS変数で渡す */
+  d.style.setProperty('--h', HUES[face-1]);
+
   const f = document.createElement('div'); f.className = 'face';
   const layout = pipLayout(face);
   for(let i=0;i<9;i++){
@@ -133,7 +174,7 @@ function createDie(face=1){
   return d;
 }
 
-/* レイアウトクラスを個数で切替 */
+/* 個数でスケール調整 */
 function applyGridClass(n){
   diceArea.classList.remove('one','few','many');
   if(n===1) diceArea.classList.add('one');
@@ -154,7 +195,7 @@ function roll(){
   }
   sumEl.textContent = `合計 ${sum}`;
   detailEl.textContent = `内訳: ${faces.join(' / ')}`;
-  sumEl.style.display = 'block';
+  sumEl.style.display = 'inline-block';
   detailEl.style.display = 'block';
 }
 
