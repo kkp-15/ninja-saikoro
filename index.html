@@ -9,7 +9,7 @@
 <meta name="description" content="クイック / 決める / RPG の3モード。色付きで見やすい特大サイコロ、スワイプで再ロール。スマホに最適化されたシンプルUI。" />
 <meta name="keywords" content="サイコロ, ダイス, 乱数, ボードゲーム, TRPG, 決める, 抽選, 無料, スマホ, Webアプリ" />
 
-<!-- ✅ OGP / Twitter -->
+<!-- ✅ OGP / Twitter（絶対URLにすること！） -->
 <meta property="og:title" content="サイコロの術 🎲" />
 <meta property="og:description" content="クイック / 決める / RPG の3モード。色付きで見やすい特大サイコロ、スワイプで再ロール。スマホに最適化されたシンプルUI。" />
 <meta property="og:type" content="website" />
@@ -20,7 +20,7 @@
 <meta name="twitter:card" content="summary_large_image" />
 <meta name="twitter:site" content="@kkp_webninja" />
 
-<!-- ✅ Google Analytics -->
+<!-- ✅ Google Analytics（いつもの） -->
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-2LM85GJN0L"></script>
 <script>
   window.dataLayer = window.dataLayer || [];
@@ -55,7 +55,7 @@
   h1{margin:0 0 8px; font-size: clamp(18px,4.5dvw,28px); font-weight:800;}
   .sub{color:var(--muted); margin-bottom:14px; font-size:.95rem}
 
-  /* モード切替や個数選択のチップ */
+  /* チップ（モード/個数/種類） */
   .chips{display:flex; flex-wrap:wrap; gap:8px; margin:10px 0 14px}
   .chip{
     border:1px solid var(--border); border-radius:999px; padding:10px 14px;
@@ -85,7 +85,7 @@
     background:transparent; color:var(--muted); cursor:pointer;
   }
 
-  /* サイコロ盤面（大きさ調整） */
+  /* サイコロ盤面（最大化調整） */
   .dice-area{
     margin-top:14px;
     display:grid; grid-template-columns: repeat(auto-fit, minmax(var(--die-min), 1fr));
@@ -98,6 +98,7 @@
   .die{
     aspect-ratio:1/1; border-radius: var(--radius); background: var(--die);
     border:1px solid var(--border); display:grid; place-items:center; position:relative;
+    /* 出目色：CSS変数 --h を受け取る（淡色リング） */
     --h: 210;
     background:
       radial-gradient(60% 55% at 50% 35%, hsl(var(--h) 100% 94%) 0%, transparent 65%),
@@ -231,7 +232,7 @@
 
   <!-- ヘルプ -->
   <div id="helpBackdrop"></div>
-  <div id="helpSheet">
+  <div id="helpSheet" role="dialog" aria-modal="true" aria-label="使い方">
     <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px">
       <strong>使い方</strong>
       <button id="helpClose" class="chip" style="padding:6px 10px">閉じる</button>
@@ -248,7 +249,7 @@
   <!-- 初回トースト -->
   <div id="toast">ヒント：下から上へスワイプで再ロール</div>
 
-  <!-- SEO説明 -->
+  <!-- SEO説明（折りたたみ） -->
   <details style="margin-top:24px; font-size:.95rem; line-height:1.6">
     <summary style="cursor:pointer; font-weight:bold; color:var(--muted)">このアプリについて</summary>
     <p>サイコロの術 🎲 は、スマホやPCで手軽にサイコロを振れる無料Webアプリです。クイックモードでは1〜6個のサイコロを同時に振り、合計と内訳を表示します。決めるモードでは1〜任意の数字までの乱数を生成し、順番決めやお題決めに便利です。RPGモードではD6・D8・D10・D12・D20を1つ振ることができます。ボードゲーム、TRPG、イベント、授業や確率実験など幅広い用途に対応します。</p>
@@ -262,7 +263,187 @@
 <script>
 const $ = s => document.querySelector(s);
 const $$ = s => [...document.querySelectorAll(s)];
-let mode = 'quick', diceCount = 2, rpgSides = 6;
-const HUES = [355,25,50,200,150,280];
-function pipLayout(n){return[[0,0,0,0,1,0,0,0,0],[1,0,0,0,0,0,0,0,1],[1,0,0,0,1,0,0,0,1],[1,0,1,0,0,0,1,0,1],[1,0,1,0,1,0,1,0,1],[1,0,1,1,0,1,1,0,1]][n-1];}
-function createDie(face){const d=document.createElement('div');d.className='die';d.style.setProperty('--h',H
+
+/* ====== 状態 ====== */
+let mode = 'quick';
+let diceCount = 2;  // クイック用
+let rpgSides = 6;   // RPG用
+
+/* ====== 出目→色相（HSLのh値） ====== */
+const HUES = [355, 25, 50, 200, 150, 280]; // 1:赤,2:橙,3:黄緑,4:水色,5:ミント,6:紫
+
+/* ====== ピップ配置（3x3） ====== */
+function pipLayout(n){
+  const one =   [0,0,0, 0,1,0, 0,0,0];
+  const two =   [1,0,0, 0,0,0, 0,0,1];
+  const three = [1,0,0, 0,1,0, 0,0,1];
+  const four =  [1,0,1, 0,0,0, 1,0,1];
+  const five =  [1,0,1, 0,1,0, 1,0,1];
+  const six =   [1,0,1, 1,0,1, 1,0,1];
+  return [one,two,three,four,five,six][n-1];
+}
+
+/* ====== サイコロDOM生成 ====== */
+function createDie(face=1){
+  const d = document.createElement('div');
+  d.className = 'die';
+  d.style.setProperty('--h', HUES[face-1] ?? 210);
+
+  const f = document.createElement('div'); 
+  f.className = 'face';
+  const layout = pipLayout(face);
+  for(let i=0;i<9;i++){
+    if(layout[i]){
+      const p = document.createElement('div'); 
+      p.className = 'pip'; 
+      f.appendChild(p);
+    }else{
+      f.appendChild(document.createElement('div'));
+    }
+  }
+  d.appendChild(f);
+  return d;
+}
+
+/* ====== クイック：個数でサイズクラス付与 ====== */
+const diceArea = $('#diceArea');
+function applyGridClass(n){
+  diceArea.classList.remove('one','few','many');
+  if(n===1) diceArea.classList.add('one');
+  else if(n<=3) diceArea.classList.add('few');
+  else diceArea.classList.add('many');
+}
+
+/* ====== バイブ ====== */
+function buzz(){
+  if($('#vib').checked && navigator.vibrate) navigator.vibrate(18);
+}
+
+/* ====== ロール処理 ====== */
+function rollQuick(){
+  applyGridClass(diceCount);
+  diceArea.innerHTML = '';
+  const faces = [];
+  let sum = 0;
+  for(let i=0;i<diceCount;i++){
+    const r = (Math.random()*6 | 0) + 1;
+    faces.push(r); sum += r;
+    diceArea.appendChild(createDie(r));
+  }
+  $('#sumQuick').textContent = `合計 ${sum}`;
+  $('#sumQuick').style.display = 'inline-block';
+  $('#detailQuick').textContent = `内訳: ${faces.join(' / ')}`;
+  $('#detailQuick').style.display = 'block';
+  buzz();
+}
+
+function rollDecide(){
+  const max = parseInt($('#maxN').value,10);
+  if(!Number.isFinite(max) || max < 2 || max > 999999){
+    $('#maxN').focus();
+    $('#maxN').reportValidity?.();
+    return;
+  }
+  const val = (Math.random()*max | 0) + 1;
+  $('#sumDecide').textContent = String(val);
+  $('#sumDecide').style.display = 'inline-block';
+  buzz();
+}
+
+function rollRPG(){
+  const val = (Math.random()*rpgSides | 0) + 1;
+  $('#sumRPG').textContent = `D${rpgSides} → ${val}`;
+  $('#sumRPG').style.display = 'inline-block';
+  buzz();
+}
+
+/* ====== モード切替 ====== */
+function switchMode(next){
+  if(mode === next) return;
+  mode = next;
+  $$('.chip[data-mode]').forEach(c => c.classList.toggle('active', c.dataset.mode===next));
+  $('#quick').style.display  = (next==='quick')  ? 'block' : 'none';
+  $('#decide').style.display = (next==='decide') ? 'block' : 'none';
+  $('#rpg').style.display    = (next==='rpg')    ? 'block' : 'none';
+  // 軽いリセット
+  if(next==='quick'){ $('#sumQuick').style.display='none'; $('#detailQuick').style.display='none'; diceArea.innerHTML=''; }
+  if(next==='decide'){ $('#sumDecide').style.display='none'; }
+  if(next==='rpg'){ $('#sumRPG').style.display='none'; }
+}
+
+/* ====== イベント登録 ====== */
+// モード
+$('#modeChips').addEventListener('click', e=>{
+  const b = e.target.closest('.chip'); if(!b) return;
+  switchMode(b.dataset.mode);
+});
+
+// クイック：個数
+$('#countChips').addEventListener('click', e=>{
+  const b = e.target.closest('.chip'); if(!b) return;
+  $$('#countChips .chip').forEach(c=>c.classList.remove('active'));
+  b.classList.add('active');
+  diceCount = parseInt(b.dataset.n,10);
+  applyGridClass(diceCount);
+});
+
+// RPG：面数
+$('#typeChips').addEventListener('click', e=>{
+  const b = e.target.closest('.chip'); if(!b) return;
+  $$('#typeChips .chip').forEach(c=>c.classList.remove('active'));
+  b.classList.add('active');
+  rpgSides = parseInt(b.dataset.sides,10);
+});
+
+// 各モードの「振る！」
+$('#rollQuick').addEventListener('click', rollQuick);
+$('#rollDecide').addEventListener('click', rollDecide);
+$('#rollRPG').addEventListener('click', rollRPG);
+
+/* ====== スワイプで再ロール（下→上） ====== */
+let tStartY = null;
+window.addEventListener('touchstart', e=>{
+  tStartY = e.changedTouches?.[0]?.clientY ?? null;
+},{passive:true});
+window.addEventListener('touchend', e=>{
+  const endY = e.changedTouches?.[0]?.clientY ?? null;
+  if(tStartY==null || endY==null) return;
+  const dy = endY - tStartY; // 上にスワイプで負
+  if(dy < -40){
+    if(mode==='quick') rollQuick();
+    else if(mode==='decide') rollDecide();
+    else if(mode==='rpg') rollRPG();
+  }
+  tStartY = null;
+},{passive:true});
+
+/* ====== ヘルプシート ====== */
+const helpBtn = $('#helpBtn');
+const helpClose = $('#helpClose');
+const helpSheet = $('#helpSheet');
+const helpBackdrop = $('#helpBackdrop');
+
+function openHelp(){ helpBackdrop.classList.add('show'); helpSheet.classList.add('show'); }
+function closeHelp(){ helpBackdrop.classList.remove('show'); helpSheet.classList.remove('show'); }
+
+helpBtn.addEventListener('click', openHelp);
+helpClose.addEventListener('click', closeHelp);
+helpBackdrop.addEventListener('click', closeHelp);
+
+/* ====== 初回限定トースト ====== */
+(function(){
+  const KEY='dice.help.toast.v1';
+  if(!localStorage.getItem(KEY)){
+    const toast = document.getElementById('toast');
+    toast.style.display='block';
+    setTimeout(()=> toast.style.display='none', 3000);
+    localStorage.setItem(KEY,'1');
+  }
+})();
+
+/* ====== 初期状態 ====== */
+switchMode('quick');
+applyGridClass(diceCount);
+</script>
+</body>
+</html>
