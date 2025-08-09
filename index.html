@@ -33,7 +33,6 @@
   :root {
     --bg:#f7f7fb; --fg:#111827; --muted:#6b7280;
     --die:#ffffff; --border:#e5e7eb; --radius:18px;
-    --pip:34%; --gap:14px; --die-min:130px;
     --btn1:#6366f1; --btn2:#06b6d4;
   }
   @media (prefers-color-scheme: dark) {
@@ -84,14 +83,25 @@
     background: transparent; color: var(--muted); cursor: pointer;
   }
 
-  .dice-area {
-    margin-top: 14px;
-    display: grid;
+  /* サイコロサイズ可変（大画面対応） */
+  .dice-area{
+    margin-top:14px;
+    display:grid;
     grid-template-columns: repeat(auto-fit, minmax(var(--die-min), 1fr));
     gap: var(--gap);
   }
-  .dice-area.one, .dice-area.few, .dice-area.many {
-    --die-min: 130px;
+  .dice-area.one{
+    --die-min: clamp(180px, 28vw, 360px);
+    --pip: 42%;
+    --gap: 18px;
+  }
+  .dice-area.few{
+    --die-min: clamp(160px, 22vw, 300px);
+    --pip: 38%;
+    --gap: 16px;
+  }
+  .dice-area.many{
+    --die-min: clamp(130px, 18vw, 220px);
     --pip: 34%;
     --gap: 14px;
   }
@@ -132,12 +142,23 @@
     .pip { background: #ffffff; box-shadow: none; }
   }
 
+  /* 結果の文字サイズアップ */
   .result {
-    margin-top: 12px; font-weight: 800; font-size: clamp(16px,3.5dvw,22px);
-    display: inline-block; padding: 6px 10px; border-radius: 10px;
-    background: linear-gradient(135deg, var(--btn1), var(--btn2)); color: #fff;
+    margin-top: 12px;
+    font-weight: 800;
+    font-size: clamp(20px, 4.5dvw, 32px);
+    display: inline-block;
+    padding: 8px 14px;
+    border-radius: 10px;
+    background: linear-gradient(135deg, var(--btn1), var(--btn2));
+    color: #fff;
   }
-  .hint { color: var(--muted); font-size: .92rem; margin-top: 6px; }
+  .hint {
+    color: var(--muted);
+    font-size: clamp(15px, 3dvw, 20px);
+    margin-top: 8px;
+    line-height: 1.4;
+  }
 
   .decide-wrap { display: flex; gap: 10px; align-items: center; margin: 6px 0 12px; }
   .num-input {
